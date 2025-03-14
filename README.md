@@ -1,4 +1,6 @@
 # BOTB2
+import boto3
+
 # AWS Configuration
 AWS_REGION = 'us-west-2'
 BUCKET_NAME = 'eco-ad-nexus-bucket'
@@ -42,3 +44,28 @@ MAX_FEATURES_RANGE = [500, 1000, 2000]
 C_RANGE = [0.1, 1, 10]
 CV_FOLDS = 3
 N_JOBS = -1
+
+# Example usage of configurations
+def generate_ad_content(interests, sentiment):
+    template = AD_CONTENT_TEMPLATES.get(sentiment, "Discover {interests} options matching your preferences")
+    return template.format(interests=interests)
+
+# Example function to upload a file to S3
+def upload_to_s3(file_path, bucket_name, key):
+    s3 = boto3.client('s3', region_name=AWS_REGION)
+    s3.upload_file(file_path, bucket_name, key)
+
+# Example function to interact with AWS Personalize
+def get_campaign_recommendations(campaign_arn, user_id):
+    personalize_runtime = boto3.client('personalize-runtime', region_name=AWS_REGION)
+    response = personalize_runtime.get_recommendations(
+        campaignArn=campaign_arn,
+        userId=user_id
+    )
+    return response['itemList']
+
+if __name__ == "__main__":
+    interests = "eco-friendly products"
+    sentiment = "POSITIVE"
+    ad_content = generate_ad_content(interests, sentiment)
+    print(ad_content)
